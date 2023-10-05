@@ -92,22 +92,134 @@ def MVC(G):
     return min_cover
 
 
+# BFS 2
+def BFS2(G, node1, node2):
+    Q = deque([node1])
+    marked = {node1: True}
+    predecessor = {node: None for node in G.adj}
+
+    while Q:
+        current_node = Q.popleft()
+        for neighbor in G.adj[current_node]:
+            if not marked.get(neighbor):
+                marked[neighbor] = True
+                predecessor[neighbor] = current_node
+                Q.append(neighbor)
+                if neighbor == node2:
+                    path = []
+                    while node2 is not None:
+                        path.append(node2)
+                        node2 = predecessor[node2]
+                    return path[::-1]
+
+    return []
+
+
+# DFS 2
+def DFS2(G, node1, node2):
+    S = [node1]
+    marked = {node: False for node in G.adj}
+    predecessor = {node: None for node in G.adj}
+
+    while S:
+        current_node = S.pop()
+        if not marked[current_node]:
+            marked[current_node] = True
+            for neighbor in G.adj[current_node]:
+                if not marked[neighbor]:
+                    predecessor[neighbor] = current_node
+                    S.append(neighbor)
+                    if neighbor == node2:
+                        path = []
+                        while node2 is not None:
+                            path.append(node2)
+                            node2 = predecessor[node2]
+                        return path[::-1]
+
+    return []
+
+
+# DFS 3
+def DFS3(G, node1):
+    S = [node1]
+    marked = {node: False for node in G.adj}
+    predecessor = {node: None for node in G.adj}
+
+    while S:
+        current_node = S.pop()
+        if not marked[current_node]:
+            marked[current_node] = True
+            for neighbor in G.adj[current_node]:
+                if not marked[neighbor]:
+                    predecessor[neighbor] = current_node
+                    S.append(neighbor)
+
+    return predecessor
+
+
+# BFS 3
+def BFS3(G, node1):
+    Q = deque([node1])
+    marked = {node1: True}
+    predecessor = {node: None for node in G.adj}
+
+    while Q:
+        current_node = Q.popleft()
+        for neighbor in G.adj[current_node]:
+            if not marked.get(neighbor):
+                marked[neighbor] = True
+                predecessor[neighbor] = current_node
+                Q.append(neighbor)
+
+    return predecessor
+
+
+# HAS CYCLE
+def has_cycle(G):
+    for node in G.adj:
+        # Using BFS3 as it gives a predecessor dictionary
+        pred = BFS3(G, node)
+        visited = {n: False for n in G.adj}
+
+        Q = deque([node])
+        while Q:
+            current_node = Q.popleft()
+            visited[current_node] = True
+            for neighbor in G.adj[current_node]:
+                if visited[neighbor] and pred[current_node] != neighbor:
+                    return True
+                if not visited[neighbor]:
+                    Q.append(neighbor)
+    return False
+
+
+# IS CONNECTED
+def is_connected(G):
+    # Arbitrarily choosing a starting node. Let's start with 0
+    # BFS3 will give us a predecessor dictionary
+    pred = BFS3(G, 0)
+
+    # If any node doesn't have a predecessor and isn't the starting node, the graph isn't connected
+    for node, pre in pred.items():
+        if pre is None and node != 0:
+            return False
+    return True
+
+
+# CREATE RANDOM GRAPH
 def create_random_graph(i, j):
-    if j > i * (i - 1) // 2:
-        raise ValueError("Too many edges")
+    G = Graph(i)
 
-    g = Graph(i)
-    added_edges = set()
+    added_edges = 0
+    while added_edges < j:
+        # Randomly choose two distinct nodes
+        node1, node2 = random.sample(range(i), 2)
 
-    while len(added_edges) < j:
-        node1 = random.randint(0, i - 1)
-        node2 = random.randint(0, i - 1)
+        # If the edge doesn't already exist, add it
+        if not G.are_connected(node1, node2):
+            G.add_edge(node1, node2)
+            added_edges += 1
 
-        while node1 == node2 or (node1, node2) in added_edges or (node2, node1) in added_edges:
-            node1 = random.randint(0, i - 1)
-            node2 = random.randint(0, i - 1)
+    return G
 
-        g.add_edge(node1, node2)
-        added_edges.add((node1, node2))
 
-    return g
