@@ -1,4 +1,5 @@
 import random
+import time
 from collections import deque
 
 #Undirected graph using an adjacency list
@@ -223,3 +224,17 @@ def create_random_graph(i, j):
     return G
 
 
+def multiple_runs(n):
+    cycle_count = 0
+    nodes = 100
+    edges = 0
+    for i in range(n):
+        g = create_random_graph(nodes, edges)
+        if has_cycle(g):
+            cycle_count += 1
+
+    print("total runs: ", n, "\ntotal cycles: ", cycle_count, "\npercentage of cycles: ", cycle_count/n * 100, "%"
+          "\nnodes: ", nodes, "edges: ", edges)
+
+
+multiple_runs(100)
