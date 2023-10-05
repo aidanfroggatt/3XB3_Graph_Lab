@@ -1,3 +1,4 @@
+import random
 from collections import deque
 
 #Undirected graph using an adjacency list
@@ -91,3 +92,22 @@ def MVC(G):
     return min_cover
 
 
+def create_random_graph(i, j):
+    if j > i * (i - 1) // 2:
+        raise ValueError("Too many edges")
+
+    g = Graph(i)
+    added_edges = set()
+
+    while len(added_edges) < j:
+        node1 = random.randint(0, i - 1)
+        node2 = random.randint(0, i - 1)
+
+        while node1 == node2 or (node1, node2) in added_edges or (node2, node1) in added_edges:
+            node1 = random.randint(0, i - 1)
+            node2 = random.randint(0, i - 1)
+
+        g.add_edge(node1, node2)
+        added_edges.add((node1, node2))
+
+    return g
