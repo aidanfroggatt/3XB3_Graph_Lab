@@ -1,6 +1,6 @@
 import random
-import time
 from collections import deque
+from copy import deepcopy
 
 #Undirected graph using an adjacency list
 class Graph:
@@ -224,16 +224,52 @@ def create_random_graph(i, j):
     return G
 
 
+# VERTEX COVER approx1(G)
+def approx1(G):
+    C = set()
+    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
+    while not is_vertex_cover(G, C):
+        v = G_copy.get_highest_degree_vertex()
+        C.add(v)
+        G_copy.remove_vertex_and_edges(v)
+    return C
+
+
+# VERTEX COVER approx2(G)
+def approx2(G):
+    C = set()
+    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
+    while not is_vertex_cover(G, C):
+        v = random.choice(list(G_copy.adj.keys()))
+        C.add(v)
+    return C
+
+
+# VERTEX COVER approx3(G)
+def approx3(G):
+    C = set()
+    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
+    while not is_vertex_cover(G, C):
+        u, v = G_copy.get_random_edge()
+        C.add(u)
+        C.add(v)
+        G_copy.remove_vertex_and_edges(u)
+        G_copy.remove_vertex_and_edges(v)
+    return C
+
+
+
+# MULTIPLE RUNS
 def multiple_runs(n):
-    cycle_count = 0
+    connected_count = 0
     nodes = 100
-    edges = 0
+    edges = 500
     for i in range(n):
         g = create_random_graph(nodes, edges)
-        if has_cycle(g):
-            cycle_count += 1
+        if is_connected(g):
+            connected_count += 1
 
-    print("total runs: ", n, "\ntotal cycles: ", cycle_count, "\npercentage of cycles: ", cycle_count/n * 100, "%"
+    print("total runs: ", n, "\ntotal connected: ", connected_count, "\npercentage of connected: ", connected_count/n * 100, "%"
           "\nnodes: ", nodes, "edges: ", edges)
 
 
