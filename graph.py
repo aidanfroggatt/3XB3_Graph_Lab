@@ -339,4 +339,19 @@ def multiple_runs(n):
     print("Number of edges: ", edges)
 
 
-multiple_runs(100)
+def experiment_relationship(n=8, num_graphs=1000):
+    total = 0
+    for _ in range(num_graphs):
+        G = create_random_graph(n, random.randint(1, n * (n - 1) // 2))
+        mis = MIS(G)
+        mvc = MVC(G)
+        total += len(mis) + len(mvc)
+
+    avg_total = total / num_graphs
+    print(f"Average size of MIS: {avg_total / 2}")
+    print(f"Average size of MVC: {avg_total / 2}")
+    print(f"Average sum of MIS and MVC sizes: {avg_total}")
+    print(f"Number of nodes: {n}")
+
+
+experiment_relationship()
