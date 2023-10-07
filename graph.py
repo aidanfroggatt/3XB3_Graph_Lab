@@ -1,6 +1,7 @@
 import random
 from collections import deque
 from copy import deepcopy
+import matplotlib.pyplot as plt
 
 #Undirected graph using an adjacency list
 class Graph:
@@ -24,8 +25,9 @@ class Graph:
             self.adj[node1].append(node2)
             self.adj[node2].append(node1)
 
-    def number_of_nodes():
-        return len()
+    # Fixed number_of_nodes by adding self parameter and taking length of self adjacency list
+    def number_of_nodes(self):
+        return len(self.adj)
 
 
 #Breadth First Search
@@ -70,10 +72,12 @@ def add_to_each(sets, element):
         set.append(element)
     return copy
 
+
 def power_set(set):
     if set == []:
         return [[]]
     return power_set(set[1:]) + add_to_each(power_set(set[1:]), set[0])
+
 
 def is_vertex_cover(G, C):
     for start in G.adj:
@@ -82,8 +86,10 @@ def is_vertex_cover(G, C):
                 return False
     return True
 
+
 def MVC(G):
-    nodes = [i for i in range(G.get_size())]
+    # Changed G.getSize() to G.number_of_nodes()
+    nodes = [i for i in range(G.number_of_nodes())]
     subsets = power_set(nodes)
     min_cover = nodes
     for subset in subsets:
@@ -224,53 +230,92 @@ def create_random_graph(i, j):
     return G
 
 
-# VERTEX COVER approx1(G)
 def approx1(G):
-    C = set()
-    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
-    while not is_vertex_cover(G, C):
-        v = G_copy.get_highest_degree_vertex()
-        C.add(v)
-        G_copy.remove_vertex_and_edges(v)
-    return C
+    C = []
+    G_copy = deepcopy(G)
+
+    while True:
+        # Step 2: Find the vertex with the highest degree in G_copy
+        v = max(G_copy.adj, key=lambda k: len(G_copy.adj[k]))
+
+        # Step 3: Add v to C
+        C.append(v)
+
+        # Step 4: Remove all edges incident to node v from G_copy
+        for neighbor in G_copy.adj[v]:
+            G_copy.adj[neighbor].remove(v)
+        G_copy.adj[v] = []
+
+        # Step 5: If C is a Vertex Cover return C
+        if is_vertex_cover(G, C):
+            return C
 
 
-# VERTEX COVER approx2(G)
 def approx2(G):
-    C = set()
-    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
-    while not is_vertex_cover(G, C):
-        v = random.choice(list(G_copy.adj.keys()))
-        C.add(v)
-    return C
+    C = []
+    G_copy = deepcopy(G)
+    nodes = list(G_copy.adj.keys())
+
+    while True:
+        # Step 2: Select a vertex randomly from G_copy which is not already in C
+        v = random.choice([node for node in nodes if node not in C])
+
+        # Step 3: Add v to C
+        C.append(v)
+
+        # Step 4: If C is a Vertex Cover return C
+        if is_vertex_cover(G, C):
+            return C
 
 
-# VERTEX COVER approx3(G)
 def approx3(G):
-    C = set()
-    G_copy = deepcopy(G)  # Create a copy of the graph so as not to modify the original
-    while not is_vertex_cover(G, C):
-        u, v = G_copy.get_random_edge()
-        C.add(u)
-        C.add(v)
-        G_copy.remove_vertex_and_edges(u)
-        G_copy.remove_vertex_and_edges(v)
-    return C
+    C = []
+    G_copy = deepcopy(G)
 
+    while True:
+        # Step 2: Select an edge randomly from G_copy
+        edges = [(node, neighbor) for node in G_copy.adj for neighbor in G_copy.adj[node]]
+        if not edges:
+            break
+        u, v = random.choice(edges)
+
+        # Step 3: Add u and v to C
+        if u not in C:
+            C.append(u)
+        if v not in C:
+            C.append(v)
+
+        # Step 4: Remove all edges incident to u or v from G_copy
+        for neighbor in G_copy.adj[u]:
+            G_copy.adj[neighbor].remove(u)
+        G_copy.adj[u] = []
+        for neighbor in G_copy.adj[v]:
+            G_copy.adj[neighbor].remove(v)
+        G_copy.adj[v] = []
+
+        # Step 5: If C is a Vertex Cover return C
+        if is_vertex_cover(G, C):
+            return C
 
 
 # MULTIPLE RUNS
 def multiple_runs(n):
-    connected_count = 0
-    nodes = 100
-    edges = 500
+    nodes, edges = 8, 15
+    mvc_sum, a1_sum, a2_sum, a3_sum = 0, 0, 0, 0
     for i in range(n):
         g = create_random_graph(nodes, edges)
-        if is_connected(g):
-            connected_count += 1
-
-    print("total runs: ", n, "\ntotal connected: ", connected_count, "\npercentage of connected: ", connected_count/n * 100, "%"
-          "\nnodes: ", nodes, "edges: ", edges)
+        mvc_sum += len(MVC(g))
+        a1_sum += len(approx1(g))
+        a2_sum += len(approx2(g))
+        a3_sum += len(approx3(g))
+#     display the average size of the minimum vertex cover and the average size of the approximations
+    print("Average size of the minimum vertex cover: ", mvc_sum / n)
+    print("Average size of the approximation 1: ", a1_sum / n)
+    print("Average size of the approximation 2: ", a2_sum / n)
+    print("Average size of the approximation 3: ", a3_sum / n)
+#     display the number of nodes and edges in the graph
+    print("Number of nodes: ", nodes)
+    print("Number of edges: ", edges)
 
 
 multiple_runs(100)
