@@ -298,16 +298,37 @@ def approx3(G):
             return C
 
 
+def is_independent_set(G, S):
+    for v in S:
+        for u in S:
+            if G.are_connected(v, u):
+                return False
+    return True
+
+
+def MIS(G):
+    nodes = [i for i in range(G.number_of_nodes())]
+    subsets = power_set(nodes)
+    max_independent_set = []
+    for subset in subsets:
+        if is_independent_set(G, subset):
+            if len(subset) > len(max_independent_set):
+                max_independent_set = subset
+    return max_independent_set
+
+
+
 # MULTIPLE RUNS
 def multiple_runs(n):
     nodes, edges = 8, 15
     mvc_sum, a1_sum, a2_sum, a3_sum = 0, 0, 0, 0
     for i in range(n):
-        g = create_random_graph(nodes, edges)
-        mvc_sum += len(MVC(g))
-        a1_sum += len(approx1(g))
-        a2_sum += len(approx2(g))
-        a3_sum += len(approx3(g))
+        for i in range(1000):
+            g = create_random_graph(nodes, edges)
+            mvc_sum += len(MVC(g))
+            a1_sum += len(approx1(g))
+            a2_sum += len(approx2(g))
+            a3_sum += len(approx3(g))
 #     display the average size of the minimum vertex cover and the average size of the approximations
     print("Average size of the minimum vertex cover: ", mvc_sum / n)
     print("Average size of the approximation 1: ", a1_sum / n)
