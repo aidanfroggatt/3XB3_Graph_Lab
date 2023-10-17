@@ -3,7 +3,8 @@ from collections import deque
 from copy import deepcopy
 import matplotlib.pyplot as plt
 
-#Undirected graph using an adjacency list
+
+# Undirected graph using an adjacency list
 class Graph:
 
     def __init__(self, n):
@@ -30,10 +31,10 @@ class Graph:
         return len(self.adj)
 
 
-#Breadth First Search
+# Breadth First Search
 def BFS(G, node1, node2):
     Q = deque([node1])
-    marked = {node1 : True}
+    marked = {node1: True}
     for node in G.adj:
         if node != node1:
             marked[node] = False
@@ -48,7 +49,7 @@ def BFS(G, node1, node2):
     return False
 
 
-#Depth First Search
+# Depth First Search
 def DFS(G, node1, node2):
     S = [node1]
     marked = {}
@@ -65,7 +66,7 @@ def DFS(G, node1, node2):
     return False
 
 
-#Use the methods below to determine minimum Vertex Covers
+# Use the methods below to determine minimum Vertex Covers
 def add_to_each(sets, element):
     copy = sets.copy()
     for set in copy:
@@ -82,7 +83,7 @@ def power_set(set):
 def is_vertex_cover(G, C):
     for start in G.adj:
         for end in G.adj[start]:
-            if not(start in C or end in C):
+            if not (start in C or end in C):
                 return False
     return True
 
@@ -317,41 +318,17 @@ def MIS(G):
     return max_independent_set
 
 
-
-# MULTIPLE RUNS
-def multiple_runs(n):
-    nodes, edges = 8, 15
-    mvc_sum, a1_sum, a2_sum, a3_sum = 0, 0, 0, 0
+def multipleRuns(n):
+    sizeMIS, sizeMVC = 0, 0
     for i in range(n):
-        for i in range(1000):
-            g = create_random_graph(nodes, edges)
-            mvc_sum += len(MVC(g))
-            a1_sum += len(approx1(g))
-            a2_sum += len(approx2(g))
-            a3_sum += len(approx3(g))
-#     display the average size of the minimum vertex cover and the average size of the approximations
-    print("Average size of the minimum vertex cover: ", mvc_sum / n)
-    print("Average size of the approximation 1: ", a1_sum / n)
-    print("Average size of the approximation 2: ", a2_sum / n)
-    print("Average size of the approximation 3: ", a3_sum / n)
-#     display the number of nodes and edges in the graph
-    print("Number of nodes: ", nodes)
-    print("Number of edges: ", edges)
+        G = create_random_graph(8, 28)
+        sizeMVC += len(MVC(G))
+        sizeMIS += len(MIS(G))
+
+    print("Average size of MVC: ", sizeMVC/n)
+    print("Average size of MIS: ", sizeMIS/n)
+
+    return sizeMIS/n, sizeMVC/n
 
 
-def experiment_relationship(n=8, num_graphs=1000):
-    total = 0
-    for _ in range(num_graphs):
-        G = create_random_graph(n, random.randint(1, n * (n - 1) // 2))
-        mis = MIS(G)
-        mvc = MVC(G)
-        total += len(mis) + len(mvc)
-
-    avg_total = total / num_graphs
-    print(f"Average size of MIS: {avg_total / 2}")
-    print(f"Average size of MVC: {avg_total / 2}")
-    print(f"Average sum of MIS and MVC sizes: {avg_total}")
-    print(f"Number of nodes: {n}")
-
-
-experiment_relationship()
+multipleRuns(1000)
